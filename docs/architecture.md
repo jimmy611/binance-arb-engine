@@ -179,7 +179,14 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
   they are documented, not stubbed with fake behavior. This required switching
   `MarketEvent` to serde's externally tagged representation so it survives a
   non-self-describing binary format.
-- [ ] M8 `control-api` gRPC and WebSocket, generated from `proto/`.
+- [x] M8 `control-api`: the full protobuf contract in `proto/` (EngineControl,
+  Config, History, and the streaming BookTop/Opportunity/Trade/SystemMetrics
+  types), generated to Rust via tonic-build with serde derived so the same types
+  serialize to JSON over the WebSocket. gRPC services (EngineControl, Config,
+  History) run over a shared `ControlState` with versioned optimistic-locking
+  config, a live-mode confirmation-phrase gate, and an emergency stop that forces
+  dry-run. Streaming is a tokio broadcast `Hub` fanned out over a multiplexed
+  `serve_ws` socket.
 - [ ] M9 frontend (dashboard first, then the remaining screens).
 - [ ] M10 `execution` dry-run (signing, routing, mode selection, log only).
 - [ ] M11 `risk` limits, circuit breakers, three-channel kill switch.

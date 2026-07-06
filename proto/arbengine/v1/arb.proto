@@ -1,0 +1,236 @@
+syntax = "proto3";
+
+package arbengine.v1;
+
+import "arbengine/v1/common.proto";
+
+// The ARB control-plane API contract. This file is the single source of truth
+// for the interface between the engine and the frontend. Rust server stubs are
+// generated from it by tonic-build; the TypeScript client is generated from the
+// same file at the frontend milestone.
+//
+// RPC (unary) uses gRPC. High-rate streaming (book tops, opportunities, trades,
+// metrics, alerts) is delivered over a single multiplexed WebSocket in
+// production; the streaming services are defined here as the authoritative
+// message contract that the WebSocket envelopes carry.
+
+// Whether the engine may send real orders.
+enum EngineMode {
+  ENGINE_MODE_UNSPECIFIED = 0;
+  ENGINE_MODE_DRY_RUN = 1;
+  ENGINE_MODE_LIVE = 2;
+}
+
+// Generic acknowledgement.
+message Ack {
+  bool ok = 1;
+  string message = 2;
+}
+
+// --- EngineControl ----------------------------------------------------------
+
+message StartRequest {}
+message StopRequest {}
+
+message SetModeRequest {
+  EngineMode mode = 1;
+  // Required (and checked) when switching to LIVE.
+  string confirmation_phrase = 2;
+}
+
+message EmergencyStopRequest {
+  string reason = 1;
+  // If true, unwind open positions to the base asset (USDT by default).
+  bool unwind = 2;
+}
+
+message ReloadConfigRequest {}
+
+service EngineControl {
+  rpc Start(StartRequest) returns (Ack);
+  rpc Stop(StopRequest) returns (Ack);
+  rpc SetMode(SetModeRequest) returns (Ack);
+  rpc EmergencyStop(EmergencyStopRequest) returns (Ack);
+  rpc ReloadConfig(ReloadConfigRequest) returns (Ack);
+}
+
+// --- Streaming payloads ------------------------------------------------------
+
+message BookTop {
+  Symbol symbol = 1;
+  Decimal bid_price = 2;
+  Decimal bid_qty = 3;
+  Decimal ask_price = 4;
+  Decimal ask_qty = 5;
+  string status = 6; // live | stale
+  Timestamp ts = 7;
+}
+
+message OpportunityLeg {
+  Symbol symbol = 1;
+  Side side = 2;
+  Decimal price = 3;
+  Decimal qty = 4;
+}
+
+message Opportunity {
+  string id = 1;
+  repeated string path = 2; // e.g. ["USDT","BTC","ETH","USDT"]
+  repeated OpportunityLeg legs = 3;
+  double gross_product = 4;
+  double edge_bps = 5;
+  double ev_quote = 6;
+  double size_quote = 7;
+  double confidence = 8;
+  string mode = 9;   // parallel_ioc | sequential | dry_run
+  string status = 10; // live | ghost | executing | filtered
+  Timestamp ts = 11;
+}
+
+message Fill {
+  int32 leg = 1;
+  Symbol symbol = 2;
+  Side side = 3;
+  Decimal price = 4;
+  Decimal qty = 5;
+  double fee_quote = 6;
+}
+
+message LatencyBreakdown {
+  uint32 detect_us = 1;
+  uint32 eval_us = 2;
+  uint32 sign_us = 3;
+  uint32 ack_ms = 4;
+}
+
+message Trade {
+  string cycle_id = 1;
+  repeated string path = 2;
+  repeated Fill fills = 3;
+  double gross_quote = 4;
+  double fees_quote = 5;
+  double net_quote = 6;
+  string mode = 7;
+  string outcome = 8; // filled | partial | aborted
+  LatencyBreakdown latency = 9;
+  Timestamp ts = 10;
+}
+
+message ExchangeStatus {
+  string name = 1;
+  string state = 2; // connected | connecting | disconnected | degraded
+  double msg_rate = 3;
+}
+
+message SystemMetrics {
+  EngineMode mode = 1;
+  repeated ExchangeStatus exchanges = 2;
+  double msg_rate = 3;
+  double detection_rate = 4;
+  double execution_rate = 5;
+  uint32 detect_p50_us = 6;
+  uint32 detect_p99_us = 7;
+  uint32 ack_p50_ms = 8;
+  uint32 ack_p99_ms = 9;
+  double ghost_rate = 10;
+  double reject_rate = 11;
+  double realized_quote = 12;
+  double unrealized_quote = 13;
+  Timestamp ts = 14;
+}
+
+message Alert {
+  string id = 1;
+  string level = 2; // info | warn | error
+  string source = 3;
+  string message = 4;
+  Timestamp ts = 5;
+}
+
+message RiskLimit {
+  string key = 1;
+  string label = 2;
+  double used = 3;
+  double limit = 4;
+  string unit = 5;
+  string severity = 6; // ok | warn | breach
+}
+
+// --- Config (optimistic locking via version) --------------------------------
+
+message EngineConfig {
+  uint64 version = 1;
+  EngineMode default_mode = 2;
+  uint32 max_cycle_length = 3;
+  double max_notional_per_trade = 4;
+  double max_total_open_notional = 5;
+  double max_daily_loss = 6;
+  uint32 max_trades_per_minute = 7;
+  double min_edge_bps = 8;
+  repeated string symbol_allowlist = 9;
+  repeated string symbol_denylist = 10;
+}
+
+message GetConfigRequest {}
+
+message UpdateConfigRequest {
+  EngineConfig config = 1;
+  // The version the client believes is current; the update is rejected if it
+  // does not match, preventing lost updates.
+  uint64 expected_version = 2;
+}
+
+service Config {
+  rpc GetConfig(GetConfigRequest) returns (EngineConfig);
+  rpc UpdateConfig(UpdateConfigRequest) returns (Ack);
+}
+
+// --- History (unary queries backed by TimescaleDB) --------------------------
+
+message GetTradesRequest {
+  uint32 limit = 1;
+}
+message TradesResponse {
+  repeated Trade trades = 1;
+}
+
+message GetOpportunitiesRequest {
+  uint32 limit = 1;
+  double min_ev = 2;
+}
+message OpportunitiesResponse {
+  repeated Opportunity opportunities = 1;
+}
+
+message PnlPoint {
+  Timestamp ts = 1;
+  double realized_quote = 2;
+  double unrealized_quote = 3;
+}
+message GetPnlSeriesRequest {
+  Timestamp since = 1;
+}
+message PnlSeriesResponse {
+  repeated PnlPoint points = 1;
+}
+
+service History {
+  rpc GetTrades(GetTradesRequest) returns (TradesResponse);
+  rpc GetOpportunities(GetOpportunitiesRequest) returns (OpportunitiesResponse);
+  rpc GetPnlSeries(GetPnlSeriesRequest) returns (PnlSeriesResponse);
+}
+
+// --- Streaming services (contract for the WebSocket topics) -----------------
+
+service MarketData {
+  rpc StreamBookTop(StartRequest) returns (stream BookTop);
+}
+service OpportunityFeed {
+  rpc Stream(StartRequest) returns (stream Opportunity);
+}
+service TradeStream {
+  rpc Stream(StartRequest) returns (stream Trade);
+}
+service MetricsFeed {
+  rpc Stream(StartRequest) returns (stream SystemMetrics);
+}
