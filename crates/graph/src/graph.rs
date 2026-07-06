@@ -96,6 +96,7 @@ pub struct AssetGraph {
     assets: Vec<Asset>,
     asset_index: HashMap<Asset, VertexId>,
     edges: Vec<Edge>,
+    edge_index: HashMap<(VertexId, VertexId), usize>,
     adjacency: Vec<Vec<VertexId>>,
     symbol_edges: HashMap<Symbol, SymbolEdges>,
     triangles: Vec<Triangle>,
@@ -155,6 +156,7 @@ impl AssetGraph {
             assets,
             asset_index,
             edges,
+            edge_index,
             adjacency,
             symbol_edges,
             triangles,
@@ -208,6 +210,12 @@ impl AssetGraph {
     #[must_use]
     pub fn edge(&self, id: usize) -> Option<&Edge> {
         self.edges.get(id)
+    }
+
+    /// The id of the directed edge from `from` to `to`, if it exists.
+    #[must_use]
+    pub fn edge_between(&self, from: VertexId, to: VertexId) -> Option<usize> {
+        self.edge_index.get(&(from, to)).copied()
     }
 
     /// The current weight of an edge (0.0 if the id is out of range).

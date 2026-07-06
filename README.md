@@ -27,7 +27,7 @@ section "Implementation Plan"). Current state:
 - [x] **M2** `exchange-binance` (read-only): combined-stream WebSocket, REST snapshot, symbol table, normalizer, rate limiter, backoff
 - [x] **M3** `orderbook`: L2 price ladder + Binance `U`/`u` resync state machine (buffer, stale-on-gap), monotonic `BookUpdate`s, property tests
 - [x] **M4** `graph`: asset interner, fee-adjusted directed edges (bid / inverse-ask), triangle precompute, per-symbol affected-triangle index, incremental updates
-- [ ] M5 `detector` (triangle fast path, Bellman-Ford, incremental)
+- [x] **M5** `detector`: triangle fast path (Algorithm C) + incremental affected scan (B) + Bellman-Ford negative-cycle detection (A) with witness reconstruction; criterion latency gate (scan_affected ~73 ns, Bellman-Ford ~8.6 µs on a dev laptop)
 - [ ] M6 `evaluator` (fees, VWAP slippage, EV, Kelly, confidence filter)
 - [ ] M7 `persistence` + `replay`
 - [ ] M8 `control-api` (gRPC + WebSocket)

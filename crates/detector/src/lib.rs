@@ -1,14 +1,25 @@
 //! Arbitrage cycle detection.
 //!
-//! Built at M5. A profitable cycle is one whose product of fee-adjusted edge
-//! weights exceeds 1, equivalently a negative cycle under the `-log(w)`
-//! transform. Three algorithms:
-//!   * Algorithm C, triangle fast path (default): precomputed length-3 cycles,
-//!     three multiplications and a compare per candidate. Built first.
-//!   * Algorithm A, Bellman-Ford (O(V*E)): full-graph negative-cycle detection
-//!     for cold start and periodic sanity checks, with witness reconstruction.
-//!   * Algorithm B, incremental re-evaluation: on a single edge update, only
-//!     re-check the bounded set of cycles containing that edge.
+//! A cycle is profitable when the product of its fee-adjusted edge weights
+//! exceeds one, equivalently a negative cycle under `cost = -ln(weight)`. Three
+//! strategies, in the order the specification prescribes:
 //!
-//! Deliberately empty at milestone M0.
+//!   * [`triangle`]: Algorithm C, the triangular fast path and the default.
+//!     [`triangle::scan_all`] for cold start; [`triangle::scan_affected`] for the
+//!     incremental hot path (Algorithm B over the precomputed triangle set).
+//!   * [`bellman`]: Algorithm A, full-graph Bellman-Ford negative-cycle
+//!     detection with witness reconstruction, for cold start and periodic
+//!     sanity checks and for cycles longer than three when enabled.
+//!
+//! Detection produces candidate cycles only. Fees are already baked into the
+//! edge weights by the graph; slippage, expected value, confidence filtering,
+//! and sizing are the evaluator's job (M6).
 #![forbid(unsafe_code)]
+
+pub mod bellman;
+pub mod triangle;
+
+pub use bellman::{find_negative_cycle, find_negative_cycle_eps, Cycle, DEFAULT_EPSILON};
+pub use triangle::{
+    scan_affected, scan_all, triangle_legs, triangle_path, Leg, TriangleHit, DEFAULT_MIN_PRODUCT,
+};

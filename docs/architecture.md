@@ -156,7 +156,13 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
   (best bid, inverse best ask), precomputed directed triangles (both travel
   directions), a per-symbol affected-triangle index for incremental
   re-evaluation, and `update_from_book` that zeroes weights on a stale book.
-- [ ] M5 `detector` triangle fast path, then Bellman-Ford, then incremental.
+- [x] M5 `detector`: Algorithm C triangle fast path (`scan_all` for cold start,
+  `scan_affected` for the incremental hot path, Algorithm B), and Algorithm A
+  Bellman-Ford negative-cycle detection over `-ln(weight)` with witness-cycle
+  reconstruction for cold start, periodic sanity, and longer cycles. Criterion
+  benches gate the hot path (measured on a dev laptop: `scan_affected` ~73 ns,
+  `scan_all` over 400 triangles ~1.36 us, Bellman-Ford full graph ~8.6 us).
+  Detection produces candidate cycles only; slippage, EV, and sizing are M6.
 - [ ] M6 `evaluator` fees, VWAP slippage, EV, Kelly, confidence filter.
 - [ ] M7 `persistence` (WAL, TimescaleDB, Redis) and `replay`.
 - [ ] M8 `control-api` gRPC and WebSocket, generated from `proto/`.
