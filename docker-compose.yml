@@ -1,0 +1,39 @@
+# Local development infrastructure.
+#
+# Brings up the hot-state cache (Redis) and the time-series store
+# (TimescaleDB). The engine itself runs on the host during development for the
+# fastest edit-compile-run loop; a container image for the engine is added at
+# milestone M13. These services are consumed by the `persistence` crate
+# starting at M7; until then they are harmless to leave stopped.
+services:
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "no", "--save", ""]
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+
+  timescaledb:
+    image: timescale/timescaledb:2.17.2-pg16
+    environment:
+      POSTGRES_USER: arb
+      POSTGRES_PASSWORD: arb_local_dev_only
+      POSTGRES_DB: arb
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+      # Schema migrations are mounted here at M7.
+      - ./crates/persistence/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arb -d arb"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+
+volumes:
+  timescale_data:

@@ -1,0 +1,78 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/core-types",
+    "crates/exchange-common",
+    "crates/exchange-binance",
+    "crates/orderbook",
+    "crates/graph",
+    "crates/detector",
+    "crates/evaluator",
+    "crates/execution",
+    "crates/risk",
+    "crates/persistence",
+    "crates/control-api",
+    "crates/engine",
+    "crates/replay",
+    "crates/backtest",
+]
+
+# Keep dependency versions unified across the workspace. Individual crates opt
+# in with `dep = { workspace = true }`. This is the single source of truth for
+# versions so the hot-path crates cannot silently diverge.
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.96"
+license = "MIT OR Apache-2.0"
+authors = ["ARB engine"]
+repository = ""
+
+[workspace.dependencies]
+# Internal crates.
+core-types = { path = "crates/core-types" }
+exchange-common = { path = "crates/exchange-common" }
+exchange-binance = { path = "crates/exchange-binance" }
+orderbook = { path = "crates/orderbook" }
+graph = { path = "crates/graph" }
+detector = { path = "crates/detector" }
+evaluator = { path = "crates/evaluator" }
+execution = { path = "crates/execution" }
+risk = { path = "crates/risk" }
+persistence = { path = "crates/persistence" }
+control-api = { path = "crates/control-api" }
+
+# Third-party. Versions are deliberately conservative; upgrades go through
+# `cargo deny` and the latency regression gate in CI.
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tracing = "0.1"
+
+# Dev/test-only dependencies are still declared here so crates can pin them with
+# `{ workspace = true }` in their own [dev-dependencies]; Cargo has no
+# [workspace.dev-dependencies] table.
+proptest = "1"
+criterion = { version = "0.5", features = ["html_reports"] }
+
+# --- Profiles -----------------------------------------------------------------
+# The production binary is built with `--release`. panic = "abort" removes
+# unwinding tables and guarantees that an unexpected panic terminates the
+# process rather than leaving a half-executed arbitrage cycle in an undefined
+# state. lto + a single codegen unit trade compile time for hot-path speed.
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+debug = false
+strip = "debuginfo"
+
+# A separate profile for benchmarks and profiling that keeps symbols and
+# unwinding so criterion and perf tooling work. Selected with
+# `cargo build --profile bench-prof`.
+[profile.bench-prof]
+inherits = "release"
+panic = "unwind"
+debug = true
+strip = "none"

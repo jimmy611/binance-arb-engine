@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package arbengine.v1;
+
+// Shared value types for the ARB API contract. The full services
+// (EngineControl, MarketData, OpportunityFeed, TradeStream, Metrics, History,
+// Config) land at milestone M8; this file establishes the foundational message
+// types they build on so both the Rust server and the TypeScript client agree
+// on how prices, quantities, symbols, and time are represented over the wire.
+
+// Fixed-point decimal transported as its canonical decimal string
+// (for example "0.00012300"). We deliberately do NOT send prices/quantities as
+// protobuf `double`, because the engine's internal representation is exact
+// fixed-point and a float round-trip would introduce error the operator could
+// see in the UI. The string is parsed back into the exact internal type on
+// receipt.
+message Decimal {
+  string value = 1;
+}
+
+// Directional side of an order or a book level.
+enum Side {
+  SIDE_UNSPECIFIED = 0;
+  SIDE_BUY = 1;
+  SIDE_SELL = 2;
+}
+
+// A trading pair. `raw` is the exchange-native symbol id (for Binance, e.g.
+// "BTCUSDT"); base/quote are the split assets from exchange metadata.
+message Symbol {
+  string raw = 1;
+  string base = 2;
+  string quote = 3;
+}
+
+// Wall-clock instant as nanoseconds since the Unix epoch (UTC). Latency
+// measurements use a monotonic clock internally and are reported separately as
+// durations; this type is only for absolute event timestamps.
+message Timestamp {
+  uint64 unix_nanos = 1;
+}
+
+// One level of an L2 order book.
+message PriceLevel {
+  Decimal price = 1;
+  Decimal quantity = 2;
+}

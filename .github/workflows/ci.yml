@@ -1,0 +1,88 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  rust:
+    name: rust (fmt, clippy, test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install protoc
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Format check
+        run: cargo fmt --all -- --check
+
+      - name: Clippy (deny warnings)
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace --all-targets
+
+      - name: Doc tests
+        run: cargo test --workspace --doc
+
+  deny:
+    name: supply-chain (cargo-deny)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
+
+  # Latency regression gate. Runs the criterion benches and fails the PR if a
+  # hot-path benchmark regresses beyond the configured threshold. Wired up in
+  # full at milestone M5 (detector); for now it compiles and runs the existing
+  # core-types benches so the harness is exercised from day one.
+  bench:
+    name: latency regression gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install protoc
+        run: sudo apt-get update && sudo apt-get install -y protobuf-compiler
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Compile benches
+        run: cargo build --benches --workspace
+      - name: Run benches (baseline capture)
+        run: cargo bench --workspace -- --warm-up-time 1 --measurement-time 3 || true
+
+  frontend:
+    name: frontend (typecheck, lint, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      # Guarded so the job is a no-op until the frontend lands at milestone M9.
+      - name: Build if present
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+            npm run typecheck --if-present
+            npm run lint --if-present
+            npm run build --if-present
+          else
+            echo "frontend not yet scaffolded (lands at M9); skipping"
+          fi

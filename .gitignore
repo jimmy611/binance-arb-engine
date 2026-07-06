@@ -1,0 +1,34 @@
+# Rust
+/target
+**/*.rs.bk
+Cargo.lock.orig
+
+# We DO commit Cargo.lock: this is a set of binaries, not a library, and
+# reproducible builds matter for a trading engine. (Left uncommented on purpose.)
+
+# Secrets and local state. Nothing here should ever reach the repo.
+*.env
+.env*
+!.env.example
+secrets/
+*.key
+*.pem
+wal/
+*.wal
+data/
+
+# Frontend
+frontend/node_modules
+frontend/dist
+frontend/.vite
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Benchmarks / profiling output
+/target/criterion
+flamegraph.svg
+perf.data*

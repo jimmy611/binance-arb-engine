@@ -1,0 +1,14 @@
+version: v2
+# Code generation for the API contract. The Rust server stubs (tonic) and the
+# TypeScript client stubs are generated from the SAME .proto files so the two
+# sides cannot drift. Wired into the build at milestone M8 (control-api).
+plugins:
+  # Rust: prost + tonic, invoked from control-api's build.rs at M8. Listed here
+  # for reference and for `buf generate` usage in CI.
+  - remote: buf.build/community/neoeinstein-prost
+    out: ../crates/control-api/src/generated
+  - remote: buf.build/community/neoeinstein-tonic
+    out: ../crates/control-api/src/generated
+  # TypeScript client for the frontend (M9).
+  - remote: buf.build/protocolbuffers/ts
+    out: ../frontend/src/generated
