@@ -28,8 +28,7 @@ section "Implementation Plan"). Current state:
 - [x] **M3** `orderbook`: L2 price ladder + Binance `U`/`u` resync state machine (buffer, stale-on-gap), monotonic `BookUpdate`s, property tests
 - [x] **M4** `graph`: asset interner, fee-adjusted directed edges (bid / inverse-ask), triangle precompute, per-symbol affected-triangle index, incremental updates
 - [x] **M5** `detector`: triangle fast path (Algorithm C) + incremental affected scan (B) + Bellman-Ford negative-cycle detection (A) with witness reconstruction; criterion latency gate (scan_affected ~73 ns, Bellman-Ford ~8.6 µs on a dev laptop)
-- [x] **M6** `evaluator`: VWAP concave breakpoint optimizer (exact profit-max size), fee schedule, confidence filter (persistence/depth/survival EV), fractional Kelly sizing; property tests for concavity
-- [ ] M7 `persistence` + `replay`
+- [x] **M7 (core)** `persistence`: append-only WAL (bincode frames, daily UTC rotation, torn-frame-tolerant reader) as the deterministic-replay foundation, `HotState` trait + in-memory store, TimescaleDB schema. Redis and TimescaleDB clients and the `replay` binary are deferred until that infra can be exercised.
 - [ ] M8 `control-api` (gRPC + WebSocket)
 - [ ] M9 frontend
 - [ ] M10 `execution` (dry-run)

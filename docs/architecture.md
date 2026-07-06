@@ -170,7 +170,15 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
   latency-adjusted survival EV), and fractional Kelly sizing capped by hard
   limits and order-book capacity. Property tests confirm the profit shape is
   concave and the reported optimum is the true maximum.
-- [ ] M7 `persistence` (WAL, TimescaleDB, Redis) and `replay`.
+- [~] M7 `persistence`: the append-only WAL (length-prefixed bincode frames,
+  daily UTC-midnight rotation via a dependency-free civil-date calc, a reader
+  that stops cleanly at a torn final frame) is built and tested, along with the
+  `HotState` trait, an in-memory implementation, and the TimescaleDB schema. The
+  Redis-backed `HotState`, the TimescaleDB writer, and the `replay` binary are
+  deferred until those services can be run locally (docker-compose is authored);
+  they are documented, not stubbed with fake behavior. This required switching
+  `MarketEvent` to serde's externally tagged representation so it survives a
+  non-self-describing binary format.
 - [ ] M8 `control-api` gRPC and WebSocket, generated from `proto/`.
 - [ ] M9 frontend (dashboard first, then the remaining screens).
 - [ ] M10 `execution` dry-run (signing, routing, mode selection, log only).

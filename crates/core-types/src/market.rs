@@ -134,8 +134,13 @@ pub struct Trade {
 }
 
 /// The unified market event produced by every adapter.
+///
+/// Serialized with serde's default (externally tagged) representation so it
+/// round-trips through non-self-describing binary formats like bincode, which
+/// the write-ahead log uses. (An internally tagged representation would need
+/// `deserialize_any`, which bincode does not support.)
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(tag = "kind", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum MarketEvent {
     /// Best bid/ask update (lowest latency top-of-book).
     BookTicker(BookTicker),
