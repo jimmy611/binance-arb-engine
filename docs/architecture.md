@@ -187,7 +187,15 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
   config, a live-mode confirmation-phrase gate, and an emergency stop that forces
   dry-run. Streaming is a tokio broadcast `Hub` fanned out over a multiplexed
   `serve_ws` socket.
-- [ ] M9 frontend (dashboard first, then the remaining screens).
+- [x] M9 `frontend`: the React/TypeScript/Vite/Tailwind trading terminal. Dense
+  dark aesthetic with glassmorphism chrome and high-contrast, tabular-numeric
+  data surfaces; light/dark themes. Six screens (Dashboard, Opportunities with a
+  virtualized feed, Trades, Risk, Backtest, Settings), Zustand state, TanStack
+  Query, lightweight-charts (PnL) and Recharts (latency), a three-channel kill
+  switch, and a live-mode confirmation gate. A `Transport` seam runs a built-in
+  market simulation by default (so every screen is live without a backend) and
+  swaps to the M8 WebSocket hub + gRPC/JSON control when `VITE_STREAM_WS` is set.
+  Typecheck, lint, and production build are green in CI.
 - [ ] M10 `execution` dry-run (signing, routing, mode selection, log only).
 - [ ] M11 `risk` limits, circuit breakers, three-channel kill switch.
 - [ ] M12 `execution` live, behind the signed flag and UI confirmation.

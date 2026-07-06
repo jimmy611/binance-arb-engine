@@ -1,0 +1,128 @@
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme tokens. Dark is the default (data-theme="dark"); light overrides below.
+   Values are HSL channels so Tailwind can apply alpha. */
+:root,
+:root[data-theme='dark'] {
+  --bg: 222 26% 6%;
+  --bg-elev: 222 22% 9%;
+  --surface: 220 20% 12%;
+  --panel: 220 22% 11%;
+  --foreground: 210 22% 92%;
+  --muted: 215 16% 62%;
+  --muted-foreground: 215 12% 52%;
+  --border: 218 16% 22%;
+  --ring: 187 92% 52%;
+  --primary: 187 92% 52%;
+  --accent: 38 96% 58%;
+  --up: 152 58% 48%;
+  --down: 356 72% 60%;
+  --warn: 38 96% 58%;
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: 210 30% 96%;
+  --bg-elev: 0 0% 100%;
+  --surface: 0 0% 100%;
+  --panel: 210 30% 99%;
+  --foreground: 220 30% 14%;
+  --muted: 220 14% 38%;
+  --muted-foreground: 220 12% 46%;
+  --border: 220 16% 84%;
+  --ring: 191 90% 40%;
+  --primary: 191 90% 38%;
+  --accent: 32 90% 46%;
+  --up: 152 62% 36%;
+  --down: 356 68% 48%;
+  --warn: 32 90% 44%;
+  color-scheme: light;
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-bg text-foreground font-sans antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'tnum';
+  }
+  /* A subtle backdrop scene behind the glass chrome. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(60rem 60rem at 12% -10%, hsl(var(--primary) / 0.1), transparent 55%),
+      radial-gradient(50rem 50rem at 108% 20%, hsl(var(--accent) / 0.08), transparent 55%),
+      radial-gradient(40rem 40rem at 50% 120%, hsl(var(--primary) / 0.06), transparent 60%);
+  }
+  /* Numeric fields use tabular monospace, decimal-aligned. */
+  .num {
+    @apply font-mono tabular-nums;
+    font-variant-numeric: tabular-nums;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  /* Glassmorphism surfaces for the chrome. Data tables sit on higher-opacity
+     panels for readability. */
+  .glass {
+    background: hsl(var(--surface) / 0.62);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid hsl(var(--border) / 0.55);
+    box-shadow: var(--tw-shadow, 0 16px 48px -18px rgba(0, 0, 0, 0.6));
+  }
+  .panel {
+    @apply rounded-2xl border border-border/60 bg-panel/80 shadow-glass;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .panel-head {
+    @apply flex items-center justify-between gap-3 border-b border-border/60 px-4 py-2.5;
+  }
+  .panel-title {
+    @apply text-xs font-semibold uppercase tracking-wider text-muted;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-2xs font-medium;
+  }
+  .data-row {
+    @apply border-b border-border/40 transition-colors;
+  }
+  .data-row:hover {
+    background: hsl(var(--foreground) / 0.03);
+  }
+  .th {
+    @apply px-3 py-2 text-left text-2xs font-semibold uppercase tracking-wider text-muted;
+  }
+  .td {
+    @apply px-3 py-1.5 text-sm;
+  }
+  .focus-ring {
+    @apply outline-none ring-offset-0 focus-visible:ring-2 focus-visible:ring-ring/70;
+  }
+}
