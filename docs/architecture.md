@@ -146,8 +146,12 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
   weight token bucket, the exchangeInfo symbol table, and a pure normalizer
   fixture-tested against recorded live frames. The depth resync state machine
   itself lands with the book at M3.
-- [ ] M3 `orderbook` L2 book with the Binance `U`/`u` protocol and property
-  tests.
+- [x] M3 `orderbook`: the pure `L2Book` price ladder plus the `SymbolBook`
+  resync state machine (buffer diffs before snapshot, `U`/`u` continuity,
+  stale-on-gap, resync recovery) and a `BookManager` that stamps every
+  `BookUpdate` with a monotonic sequence number. Property tests assert the book
+  is never crossed, contiguous diffs advance the update id, and sequence numbers
+  strictly increase.
 - [ ] M4 `graph` currency graph and triangle precomputation.
 - [ ] M5 `detector` triangle fast path, then Bellman-Ford, then incremental.
 - [ ] M6 `evaluator` fees, VWAP slippage, EV, Kelly, confidence filter.

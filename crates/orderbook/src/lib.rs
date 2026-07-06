@@ -1,11 +1,20 @@
-//! In-memory L2 order book with delta application and validation.
+//! In-memory L2 order book with Binance delta application and resync.
 //!
-//! Built at M3. Maintains a per-symbol book, applies REST snapshots and
-//! WebSocket diffs following Binance's exact `U`/`u` sequence protocol, marks a
-//! symbol stale on any sequence gap until resync completes, and emits
-//! `BookUpdate`s with a monotonically increasing sequence number. Property
-//! tests assert the invariants: best bid never exceeds best ask, quantity is
-//! conserved under delta application, and sequence numbers are monotonic.
+//! Two layers:
+//!   * [`L2Book`]: the pure price ladder (apply snapshot/diff, read top of book).
+//!     No sequencing logic, fully deterministic.
+//!   * [`SymbolBook`] and [`BookManager`]: the resync state machine that follows
+//!     Binance's exact `U`/`u` continuity protocol, buffers diffs before a
+//!     snapshot, marks a book stale on any gap, and stamps every emitted
+//!     [`core_types::BookUpdate`] with a monotonic sequence number.
 //!
-//! Deliberately empty at milestone M0.
+//! The manager is fed [`core_types::DepthDelta`] and [`core_types::DepthSnapshot`]
+//! events (produced by an exchange adapter) and returns [`BookEvent`]s telling
+//! the caller what happened, including when a fresh snapshot must be fetched.
 #![forbid(unsafe_code)]
+
+pub mod book;
+pub mod sync;
+
+pub use book::L2Book;
+pub use sync::{BookEvent, BookManager, SymbolBook};
