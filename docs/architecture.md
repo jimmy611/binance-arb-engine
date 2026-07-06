@@ -218,7 +218,19 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
   submit/cancel requests and is code-complete but not exercised live: sending
   real orders needs registered keys and is a real-money action requiring operator
   setup and confirmation, so it is gated behind the signed live-mode flag.
-- [ ] M13 `backtest`, observability, docs, deployment, 24h report.
+- [~] M13 (partial): the `engine` binary is the capstone that wires the full
+  dry-run pipeline (feed -> book -> graph -> detector -> evaluator -> risk ->
+  dry-run) with the WAL, the streaming hub, and the control API, and was verified
+  live against Binance read-only market data (780 book updates processed, 0
+  profitable cycles after fees, the expected honest outcome). `docs/algorithms.md`
+  is written with the negative-cycle proof, complexity analysis, the VWAP
+  concavity argument, and worked examples. Deferred until the required
+  infrastructure or credentials are available: the full Prometheus/OpenTelemetry
+  observability stack, the Redis and TimescaleDB clients, the `replay` and
+  `backtest` binaries and the 24-hour backtest report (need recorded data and a
+  running engine), the engine Dockerfile, and a live `terraform apply`. The
+  docker-compose services, the TimescaleDB schema, and the Terraform skeleton are
+  authored and committed.
 
 ## 7. Testing and CI
 
