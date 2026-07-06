@@ -26,7 +26,7 @@ section "Implementation Plan"). Current state:
 - [x] **M1** `core-types`: fixed-point decimal, symbol/asset, market events, book/id/time/error types
 - [x] **M2** `exchange-binance` (read-only): combined-stream WebSocket, REST snapshot, symbol table, normalizer, rate limiter, backoff
 - [x] **M3** `orderbook`: L2 price ladder + Binance `U`/`u` resync state machine (buffer, stale-on-gap), monotonic `BookUpdate`s, property tests
-- [ ] M4 `graph` (currency graph, triangle precompute)
+- [x] **M4** `graph`: asset interner, fee-adjusted directed edges (bid / inverse-ask), triangle precompute, per-symbol affected-triangle index, incremental updates
 - [ ] M5 `detector` (triangle fast path, Bellman-Ford, incremental)
 - [ ] M6 `evaluator` (fees, VWAP slippage, EV, Kelly, confidence filter)
 - [ ] M7 `persistence` + `replay`

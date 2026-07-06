@@ -152,7 +152,10 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
   `BookUpdate` with a monotonic sequence number. Property tests assert the book
   is never crossed, contiguous diffs advance the update id, and sequence numbers
   strictly increase.
-- [ ] M4 `graph` currency graph and triangle precomputation.
+- [x] M4 `graph`: asset interner, two fee-adjusted directed edges per symbol
+  (best bid, inverse best ask), precomputed directed triangles (both travel
+  directions), a per-symbol affected-triangle index for incremental
+  re-evaluation, and `update_from_book` that zeroes weights on a stale book.
 - [ ] M5 `detector` triangle fast path, then Bellman-Ford, then incremental.
 - [ ] M6 `evaluator` fees, VWAP slippage, EV, Kelly, confidence filter.
 - [ ] M7 `persistence` (WAL, TimescaleDB, Redis) and `replay`.

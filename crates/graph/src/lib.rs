@@ -1,10 +1,12 @@
-//! Currency graph: assets as vertices, market pairs as directed weighted edges.
+//! Currency graph: assets as vertices, fee-adjusted market pairs as directed
+//! weighted edges, with precomputed triangles and a per-symbol affected-triangle
+//! index for incremental re-evaluation.
 //!
-//! Built at M4. For every pair (BASE, QUOTE) it maintains two directed edges
-//! (BASE->QUOTE at the fee-adjusted bid, QUOTE->BASE at the fee-adjusted inverse
-//! ask), updated incrementally on every book update. Precomputes the set of all
-//! valid triangles at startup and, per edge, the triangles that edge
-//! participates in, so a single book update touches only the affected cycles.
-//!
-//! Deliberately empty at milestone M0.
+//! See [`AssetGraph`] for the model and the numeric rationale (weights are
+//! `f64` rates; amounts elsewhere stay exact fixed-point). The detector crate
+//! consumes this to find profitable cycles.
 #![forbid(unsafe_code)]
+
+pub mod graph;
+
+pub use graph::{AssetGraph, Edge, EdgeSide, Triangle, VertexId};
