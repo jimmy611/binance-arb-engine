@@ -163,7 +163,13 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
   benches gate the hot path (measured on a dev laptop: `scan_affected` ~73 ns,
   `scan_all` over 400 triangles ~1.36 us, Bellman-Ford full graph ~8.6 us).
   Detection produces candidate cycles only; slippage, EV, and sizing are M6.
-- [ ] M6 `evaluator` fees, VWAP slippage, EV, Kelly, confidence filter.
+- [x] M6 `evaluator`: the VWAP breakpoint optimizer (composes three legs'
+  order-book depth into a concave, piecewise-linear profit shape and finds the
+  exact profit-maximizing size in O(depth)), the tier-based fee schedule with
+  per-symbol overrides, the confidence filter (persistence, depth confidence,
+  latency-adjusted survival EV), and fractional Kelly sizing capped by hard
+  limits and order-book capacity. Property tests confirm the profit shape is
+  concave and the reported optimum is the true maximum.
 - [ ] M7 `persistence` (WAL, TimescaleDB, Redis) and `replay`.
 - [ ] M8 `control-api` gRPC and WebSocket, generated from `proto/`.
 - [ ] M9 frontend (dashboard first, then the remaining screens).

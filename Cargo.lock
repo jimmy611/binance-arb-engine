@@ -356,6 +356,10 @@ dependencies = [
 [[package]]
 name = "evaluator"
 version = "0.1.0"
+dependencies = [
+ "core-types",
+ "proptest",
+]
 
 [[package]]
 name = "exchange-binance"
