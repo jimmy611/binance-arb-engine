@@ -12,6 +12,7 @@
 //! milestones as a separate capability so a read-only build never links it.
 #![forbid(unsafe_code)]
 
+pub mod auth;
 pub mod backoff;
 pub mod models;
 pub mod normalize;
@@ -20,6 +21,7 @@ pub mod rest;
 pub mod stream;
 pub mod symbols;
 
+pub use auth::Ed25519Signer;
 pub use rest::{BinanceRest, DATA_REST, MAINNET_REST};
 pub use stream::{BinanceMarketStream, DATA_WS, MAINNET_WS};
 pub use symbols::{SymbolEntry, SymbolTable};

@@ -1,14 +1,17 @@
-//! Execution router: order signing, transport, and mode selection.
+//! Execution router: mode selection, order-plan building, and dry-run routing.
 //!
-//! Built at M10 (dry-run) then M12 (live). Selects an execution mode per
-//! opportunity: parallel IOC submission of all legs (fastest, but the legs are
-//! independent orders with no cross-order atomicity, so partial fills must be
-//! unwound), sequential with market-order lock-in (no leg-1 inventory risk),
-//! or dry-run (log only, the startup default). Signs orders with Ed25519 over
-//! pre-warmed keep-alive connections and prefers the WS-API session for the
-//! fastest acknowledgement.
-//!
-//! Deliberately empty at milestone M0. Nothing here is stubbed with fake fills:
-//! the dry-run path is real logging, and no code path submits a live order
-//! until M12 behind the signed live-mode flag.
+//! Built at M10 (dry-run). Given a sized cycle it chooses an execution mode
+//! ([`modes`]), assembles filter-compliant, snapped orders ([`plan`]), and, in
+//! dry-run, logs the would-be orders without sending anything ([`router`]).
+//! Order signing (Ed25519) lives in the Binance adapter; live submission via
+//! [`exchange_common::OrderExecution`] is added at M12 and gated behind the
+//! signed live-mode flag. Nothing here sends a live order.
 #![forbid(unsafe_code)]
+
+pub mod modes;
+pub mod plan;
+pub mod router;
+
+pub use modes::{select_mode, ExecutionMode, ModeConfig};
+pub use plan::{build_plan, ExecutionPlan, PlannedLeg};
+pub use router::{DryRunReport, ExecutionRouter};

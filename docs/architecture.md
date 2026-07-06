@@ -196,7 +196,13 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
   market simulation by default (so every screen is live without a backend) and
   swaps to the M8 WebSocket hub + gRPC/JSON control when `VITE_STREAM_WS` is set.
   Typecheck, lint, and production build are green in CI.
-- [ ] M10 `execution` dry-run (signing, routing, mode selection, log only).
+- [x] M10 `execution` dry-run: order types and the `OrderExecution` capability
+  trait (`exchange-common`), Ed25519 request signing in the Binance adapter
+  (signature verified against the public key in tests), execution-mode selection
+  (parallel IOC vs sequential lock-in vs dry-run), filter-aware order building
+  that snaps quantities to the lot step and prices to the tick and flags plans
+  that breach the minimum notional, and a router that in dry-run logs every
+  would-be order and submits nothing. Live submission is M12.
 - [ ] M11 `risk` limits, circuit breakers, three-channel kill switch.
 - [ ] M12 `execution` live, behind the signed flag and UI confirmation.
 - [ ] M13 `backtest`, observability, docs, deployment, 24h report.

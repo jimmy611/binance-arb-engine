@@ -16,6 +16,8 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time",
 tokio-tungstenite = { version = "0.24", features = ["connect", "rustls-tls-webpki-roots"] }
 futures-util = { version = "0.3", default-features = false, features = ["std", "sink"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+ed25519-dalek = "2"
+base64 = "0.22"
 
 [dev-dependencies]
 serde_json = { workspace = true }

@@ -31,7 +31,7 @@ section "Implementation Plan"). Current state:
 - [x] **M7 (core)** `persistence`: append-only WAL (bincode frames, daily UTC rotation, torn-frame-tolerant reader) as the deterministic-replay foundation, `HotState` trait + in-memory store, TimescaleDB schema. Redis and TimescaleDB clients and the `replay` binary are deferred until that infra can be exercised.
 - [x] **M8** `control-api`: full protobuf contract (single source of truth) with tonic codegen + serde derives; `EngineControl`/`Config`/`History` gRPC services over versioned `ControlState` (optimistic locking, live-mode confirmation gate, emergency stop); multiplexed WebSocket streaming hub
 - [x] **M9** `frontend`: React 18 + TS + Vite + Tailwind trading terminal (glassmorphism chrome, high-contrast data), six screens (Dashboard, Opportunities, Trades, Risk, Backtest, Settings), Zustand + TanStack Query, lightweight-charts + Recharts, virtualized opportunity feed, three-channel kill switch. `Transport` seam: simulation feed by default, real WebSocket/gRPC adapter for the M8 backend. Typecheck + lint + build green.
-- [ ] M10 `execution` (dry-run)
+- [x] **M10** `execution` (dry-run): order types + `OrderExecution` trait, Ed25519 request signing (verified), execution-mode selection (parallel IOC / sequential lock-in / dry-run), filter-aware order building (snap to tick/step, min-notional check), dry-run router that logs would-be orders and sends nothing
 - [ ] M11 `risk` (limits, circuit breakers, kill switch)
 - [ ] M12 `execution` (live)
 - [ ] M13 `backtest`, observability, docs, deployment

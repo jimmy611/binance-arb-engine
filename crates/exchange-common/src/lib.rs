@@ -9,6 +9,8 @@
 
 pub mod error;
 pub mod feed;
+pub mod order;
 
 pub use error::{ExchangeError, Result};
 pub use feed::{MarketFeed, StreamKind, Subscription};
+pub use order::{OrderExecution, OrderRequest, OrderResponse, OrderStatus, OrderType};
