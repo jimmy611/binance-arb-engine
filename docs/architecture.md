@@ -203,7 +203,13 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
   that snaps quantities to the lot step and prices to the tick and flags plans
   that breach the minimum notional, and a router that in dry-run logs every
   would-be order and submits nothing. Live submission is M12.
-- [ ] M11 `risk` limits, circuit breakers, three-channel kill switch.
+- [x] M11 `risk`: the `RiskManager` enforces hard limits before every execution
+  (per-trade, total, and per-asset notional; rolling trade-rate; daily drawdown;
+  opportunity age), tracks exposure and realized PnL, trips a circuit breaker on
+  consecutive or windowed execution failures (forcing safe dry-run mode), and
+  owns a single kill switch shared by three channels (UI, CLI, HTTP) as an
+  `Arc<AtomicBool>`. Soft limits (ghost/reject/slippage rates, sequence gaps)
+  raise warnings without vetoing. Eleven unit tests cover each path.
 - [ ] M12 `execution` live, behind the signed flag and UI confirmation.
 - [ ] M13 `backtest`, observability, docs, deployment, 24h report.
 

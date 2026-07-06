@@ -1637,6 +1637,11 @@ dependencies = [
 [[package]]
 name = "risk"
 version = "0.1.0"
+dependencies = [
+ "core-types",
+ "serde",
+ "tracing",
+]
 
 [[package]]
 name = "rustc-hash"

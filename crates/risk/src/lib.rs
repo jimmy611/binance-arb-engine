@@ -1,12 +1,16 @@
-//! Risk manager: hard limits, soft warnings, circuit breakers, and kill switch.
+//! Risk management: hard limits, circuit breakers, soft warnings, and the kill
+//! switch.
 //!
-//! Built at M11. Enforces hard limits before every execution (max notional per
-//! trade, total open notional, per-asset notional, trades per minute, daily
-//! drawdown, opportunity max age, minimum quote balances) and can veto an
-//! execution or force the engine into safe (dry-run) mode. Raises soft-limit
-//! warnings (elevated slippage, ghost rate, reject rate, sequence gaps) without
-//! vetoing. Owns the single `emergency_stop` boolean settable from three
-//! independent channels (UI, CLI, HTTP endpoint).
-//!
-//! Deliberately empty at milestone M0.
+//! The [`RiskManager`] enforces hard limits before every execution (per-trade,
+//! total, and per-asset notional; trade rate; daily drawdown; opportunity age)
+//! and can veto a trade or force safe (dry-run) mode via its circuit breaker. It
+//! owns a single kill switch that three independent channels (UI, CLI, HTTP)
+//! share and can flip. Soft limits (elevated ghost/reject/slippage rates,
+//! sequence gaps) raise warnings without vetoing.
 #![forbid(unsafe_code)]
+
+pub mod limits;
+pub mod manager;
+
+pub use limits::{BreakerState, RiskBreach, RiskConfig, RiskDecision, SoftWarning};
+pub use manager::RiskManager;
