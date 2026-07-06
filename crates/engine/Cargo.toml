@@ -11,3 +11,16 @@ path = "src/main.rs"
 
 [dependencies]
 core-types = { workspace = true }
+exchange-common = { workspace = true }
+exchange-binance = { workspace = true }
+orderbook = { workspace = true }
+graph = { workspace = true }
+detector = { workspace = true }
+evaluator = { workspace = true }
+execution = { workspace = true }
+risk = { workspace = true }
+persistence = { workspace = true }
+control-api = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "net", "time", "sync", "signal"] }
