@@ -24,7 +24,7 @@ section "Implementation Plan"). Current state:
 
 - [x] **M0** Workspace scaffold, CI, proto/buf config, compose + terraform skeletons
 - [x] **M1** `core-types`: fixed-point decimal, symbol/asset, market events, book/id/time/error types
-- [ ] M2 `exchange-binance` (read-only market data)
+- [x] **M2** `exchange-binance` (read-only): combined-stream WebSocket, REST snapshot, symbol table, normalizer, rate limiter, backoff
 - [ ] M3 `orderbook` (L2 book with Binance resync protocol)
 - [ ] M4 `graph` (currency graph, triangle precompute)
 - [ ] M5 `detector` (triangle fast path, Bellman-Ford, incremental)

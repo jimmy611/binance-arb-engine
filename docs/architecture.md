@@ -141,8 +141,11 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
 - [x] M0 Workspace scaffold, CI, proto/buf config, compose and terraform
   skeletons.
 - [x] M1 `core-types` with property tests and a criterion bench.
-- [ ] M2 `exchange-binance` read-only market data (combined streams, REST
-  snapshot, resync protocol, normalizer).
+- [x] M2 `exchange-binance` read-only market data: combined-stream WebSocket
+  with jittered backoff, REST client (exchangeInfo, depth snapshot) with a
+  weight token bucket, the exchangeInfo symbol table, and a pure normalizer
+  fixture-tested against recorded live frames. The depth resync state machine
+  itself lands with the book at M3.
 - [ ] M3 `orderbook` L2 book with the Binance `U`/`u` protocol and property
   tests.
 - [ ] M4 `graph` currency graph and triangle precomputation.

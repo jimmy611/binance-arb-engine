@@ -1,15 +1,25 @@
-//! Binance adapter: combined-stream WebSocket market data, REST snapshots, and
-//! the WS-API order path.
+//! Binance adapter: read-only combined-stream market data and REST snapshots.
 //!
-//! Responsibilities (built at M2 for read-only market data, extended at M10/M12
-//! for order submission):
-//!   * Manage combined-stream WebSocket connections with reconnect, exponential
-//!     backoff, and jitter.
-//!   * Fetch REST depth snapshots and drive the documented buffer-then-apply
-//!     resync protocol.
-//!   * Normalize Binance payloads into [`core_types::MarketEvent`].
-//!   * Track REST weight and order-rate token buckets, never exceeding 80% of
-//!     any declared limit.
+//! Layering (from pure to IO):
+//!   * [`models`]: serde wire structs, exact Binance shapes.
+//!   * [`symbols`]: the `exchangeInfo`-derived symbol table.
+//!   * [`normalize`]: pure conversion of wire payloads into
+//!     [`core_types::MarketEvent`]. Fully fixture-tested.
+//!   * [`ratelimit`] and [`backoff`]: pure policy helpers.
+//!   * [`rest`] and [`stream`]: thin IO wrappers around the pure core.
 //!
-//! Deliberately empty at milestone M0.
+//! Order submission is intentionally absent; it arrives at the execution
+//! milestones as a separate capability so a read-only build never links it.
 #![forbid(unsafe_code)]
+
+pub mod backoff;
+pub mod models;
+pub mod normalize;
+pub mod ratelimit;
+pub mod rest;
+pub mod stream;
+pub mod symbols;
+
+pub use rest::{BinanceRest, DATA_REST, MAINNET_REST};
+pub use stream::{BinanceMarketStream, DATA_WS, MAINNET_WS};
+pub use symbols::{SymbolEntry, SymbolTable};

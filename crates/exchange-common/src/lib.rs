@@ -1,11 +1,14 @@
 //! Exchange-agnostic abstractions shared by every venue adapter.
 //!
-//! This crate will host the `ExchangeAdapter` trait (connect, subscribe,
-//! next_event, submit_order, cancel_order, fee_schedule, symbol_filters) and
-//! the shared normalizers that turn venue-specific payloads into the common
-//! [`core_types::MarketEvent`] enum.
-//!
-//! Deliberately empty at milestone M0. The trait is introduced at M2 alongside
-//! the first concrete adapter (`exchange-binance`), so its shape is driven by a
-//! real implementation rather than guessed in the abstract.
+//! Hosts the common [`ExchangeError`], the read-only [`MarketFeed`] trait, and
+//! subscription descriptors. Order-submission capabilities are added at the
+//! execution milestones as a separate trait so a read-only build never links
+//! order code. Each concrete adapter (starting with `exchange-binance`)
+//! normalizes its venue payloads into the shared [`core_types::MarketEvent`].
 #![forbid(unsafe_code)]
+
+pub mod error;
+pub mod feed;
+
+pub use error::{ExchangeError, Result};
+pub use feed::{MarketFeed, StreamKind, Subscription};
