@@ -20,8 +20,10 @@ pub mod ratelimit;
 pub mod rest;
 pub mod stream;
 pub mod symbols;
+pub mod trader;
 
 pub use auth::Ed25519Signer;
 pub use rest::{BinanceRest, DATA_REST, MAINNET_REST};
 pub use stream::{BinanceMarketStream, DATA_WS, MAINNET_WS};
 pub use symbols::{SymbolEntry, SymbolTable};
+pub use trader::BinanceTrader;

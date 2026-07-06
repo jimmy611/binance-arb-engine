@@ -10,3 +10,7 @@ core-types = { workspace = true }
 exchange-common = { workspace = true }
 serde = { workspace = true }
 tracing = { workspace = true }
+futures-util = { version = "0.3", default-features = false, features = ["std", "async-await"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt", "macros", "sync"] }

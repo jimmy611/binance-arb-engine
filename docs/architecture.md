@@ -210,7 +210,14 @@ clippy (`-D warnings`), and is formatted. No hot-path logic is stubbed.
   owns a single kill switch shared by three channels (UI, CLI, HTTP) as an
   `Arc<AtomicBool>`. Soft limits (ghost/reject/slippage rates, sequence gaps)
   raise warnings without vetoing. Eleven unit tests cover each path.
-- [ ] M12 `execution` live, behind the signed flag and UI confirmation.
+- [x] M12 `execution` live path: the live state machine (`execute_live`) is
+  generic over an `OrderExecution` adapter and handles both modes (parallel IOC,
+  sequential lock-in), partial fills, rejects, and inventory unwind with opposite
+  market orders; it is verified against a mock adapter across every branch. The
+  real Binance trader adapter (`BinanceTrader`) builds Ed25519-signed order
+  submit/cancel requests and is code-complete but not exercised live: sending
+  real orders needs registered keys and is a real-money action requiring operator
+  setup and confirmation, so it is gated behind the signed live-mode flag.
 - [ ] M13 `backtest`, observability, docs, deployment, 24h report.
 
 ## 7. Testing and CI

@@ -580,7 +580,9 @@ version = "0.1.0"
 dependencies = [
  "core-types",
  "exchange-common",
+ "futures-util",
  "serde",
+ "tokio",
  "tracing",
 ]
 

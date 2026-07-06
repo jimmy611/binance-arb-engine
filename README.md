@@ -33,7 +33,7 @@ section "Implementation Plan"). Current state:
 - [x] **M9** `frontend`: React 18 + TS + Vite + Tailwind trading terminal (glassmorphism chrome, high-contrast data), six screens (Dashboard, Opportunities, Trades, Risk, Backtest, Settings), Zustand + TanStack Query, lightweight-charts + Recharts, virtualized opportunity feed, three-channel kill switch. `Transport` seam: simulation feed by default, real WebSocket/gRPC adapter for the M8 backend. Typecheck + lint + build green.
 - [x] **M10** `execution` (dry-run): order types + `OrderExecution` trait, Ed25519 request signing (verified), execution-mode selection (parallel IOC / sequential lock-in / dry-run), filter-aware order building (snap to tick/step, min-notional check), dry-run router that logs would-be orders and sends nothing
 - [x] **M11** `risk`: pre-trade hard-limit checks (per-trade / total / per-asset notional, trade rate, daily drawdown, opportunity age), exposure tracking, circuit breaker (consecutive/windowed failures force safe mode), soft-limit warnings, and a shared three-channel kill switch
-- [ ] M12 `execution` (live)
+- [x] **M12** `execution` (live path): the live state machine (parallel IOC / sequential lock-in) with partial-fill and reject handling and inventory unwind, generic over `OrderExecution` and tested against a mock; plus the real Binance trader adapter (Ed25519-signed order submit/cancel), code-complete. No live orders are sent in this environment (no keys; real-money action requires operator setup).
 - [ ] M13 `backtest`, observability, docs, deployment
 
 ## Layout
